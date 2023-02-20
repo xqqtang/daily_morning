@@ -1,3 +1,4 @@
+'''
 from datetime import date, datetime
 import math
 from wechatpy import WeChatClient
@@ -16,100 +17,82 @@ app_secret = os.environ["APP_SECRET"]
 
 user_id = os.environ["USER_ID"]
 template_id = os.environ["TEMPLATE_ID"]
-
 '''
-def get_weather():
-  url = "http://autodev.openspeech.cn/csp/api/v2.1/weather?openId=aiuicus&clientType=android&sign=android&city=" + city
-  res = requests.get(url).json()
-  weather = res['data']['list'][0]
-  return weather['weather'], math.floor(weather['temp'])
+# -*- coding: utf-8 -*-
+# @Author: Toufu
+# @Date:   2022-08-23 13:05:28
 
-def get_count():
-  delta = today - datetime.strptime(start_date, "%Y-%m-%d")
-  return delta.days
+import requests,json
 
-def get_birthday():
-  next = datetime.strptime(str(date.today().year) + "-" + birthday, "%Y-%m-%d")
-  if next < datetime.now():
-    next = next.replace(year=next.year + 1)
-  return (next - today).days
+def token(AppId,AppSecret):  #调用开发者的api 得到token
+    url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}'.format(AppId,AppSecret)
+    r=requests.get(url)
+    #print(r.text)
+    data = json.loads(r.text)
+    #print(data["access_token"])
+    return data["access_token"]
 
-def get_words():
-  words = requests.get("https://api.shadiao.pro/chp")
-  if words.status_code != 200:
-    return get_words()
-  return words.json()['data']['text']
+def tianqi(city):
+    Weather = 'https://www.yiketianqi.com/free/day?appid=79824366&appsecret=t14u0iwR&unescape=1&city={0}'.format(city) #修改为自己的城市地址、appid、appsecret
+    Weatherapi = requests.get(Weather)
+    W1 = json.loads(Weatherapi.text)
+    #print(W1)
+    ShiShiTQ = W1['wea']
+    ShiShiWD = W1['tem_night']+'~'+W1['tem_day']
+    return ShiShiTQ,ShiShiWD
 
-def get_random_color():
-  return "#%06x" % random.randint(0, 0xFFFFFF)
+def chp():
+    qinghuaqiurl = 'https://api.shadiao.pro/chp'
+    qinghuaapi = requests.get(qinghuaqiurl)
+    chp = json.loads(qinghuaapi.text)
+    chp1 = json.dumps(chp['data'])
+    chp1 = json.loads(chp1)
+    return chp1['text']
 
-
-client = WeChatClient(app_id, app_secret)
-
-wm = WeChatMessage(client)
-# wea, temperature = get_weather()
-
-
-# data = {"weather":{"value":wea},"temperature":{"value":temperature},"love_days":{"value":get_count()},"birthday_left":{"value":get_birthday()},"words":{"value":get_words(), "color":get_random_color()}}
-data = {"weather":{"value":21},"temperature":{"value":22},"love_days":{"value":23},"birthday_left":{"value":24},"words":{"value":get_words(), "color":get_random_color()}}
-res = wm.send_template(user_id, template_id, data)
-print(res)
-'''
-
-class WechatMessagePush:
-    def __init__(self, appid, appsecret, temple_id):
-        self.appid = appid
-        self.appsecret = appsecret
-
-        # 模板id,参考公众号后面的模板消息接口 -> 模板ID(用于接口调用):IG1Kwxxxx
-        self.temple_id = temple_id
-
-        self.token = self.get_Wechat_access_token()
-   
-
-    def get_Wechat_access_token(self):
-        '''
-        获取微信的access_token： 获取调用接口凭证
-        :return:
-        '''
-        url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={self.appid}&secret={self.appsecret}"
-        response = requests.get(url)
-
-        res = response.json()
-        if "access_token" in res:
-            token = res["access_token"]
-            return token
-
-    def get_wechat_accout_fans_count(self):
-        '''
-        获取微信公众号所有粉丝的openid
-        '''
-        next_openid = ''
-        url = f"https://api.weixin.qq.com/cgi-bin/user/get?access_token={self.token}&next_openid={next_openid}"
-        response = requests.get(url)
-        res = response.json()['data']['openid']
-
-    def send_wechat_temple_msg(self, content):
-        '''
-        发送微信公众号的模板消息'''
-        url = f"https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={self.token}"
-
-        fan_open_id = self.get_wechat_accout_fans_count()
-        for open_id in fan_open_id:
-            body = {
-                "touser": open_id,
-                'template_id': self.temple_id,    
-                # 'url': 'http://www.jb51.net',  
-                "topcolor": "#667F00",
-                "data": {
-                    "content": {"value": content}
-                }
+def send(t,tem1,tem2,chp):   #带着token去发包
+    #print(t)
+    url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={0}'.format(t)
+    data = {
+    "touser":os.environ["USER_ID"],  #填收信人的ID 她关注后 后台可以看见
+    "template_id":os.environ["TEMPLATE_ID"],  #填模板的ID 后台创建模板后可以看见
+    #"url":"http://weixin.qq.com/download",
+    "topcolor":"#FF0000",
+    "data":{
+            "first": {
+                "value":"每个小时要起来走走哦，多喝水多喝水多喝水",
+                "color":"#000"
+            },
+            "keyword1":{
+                "value":tem1,
+                "color":"#000"
+            },
+            "keyword2":{
+                "value":tem2,
+                "color":"#000"
+            },
+            "keyword3":{
+                "value":"",
+                "color":"#000"
+            },
+            "keyword4":{
+                "value":chp,
+                "color":"#000"
             }
-            headers = {"Content-type": "application/json"}
-            data = json.JSONEncoder().encode(body)
-            res = requests.post(url=url, data=data, headers=headers)
-            
-if __name__ == '__main__':
+}
+}
+    res = requests.post(url=url,data=json.dumps(data))
+    print(res.text)
 
-    WechatMessagePush(app_id, app_secret, template_id).send_wechat_txt_msg(msg="测试")           
+if __name__ == '__main__':
+    AppID = os.environ["APP_ID"]
+    AppSecret = os.environ["APP_SECRET"]
+    t = token(AppID,AppSecret)
+    WD,TQ=tianqi("石狮") ##地址记得修改到你需要的地方
+    WD1,TQ1=tianqi("南昌")
+    tem1="\n石狮今天天气："+WD+"\n石狮今天温度："+TQ  ##文字描述也别忘了改哦
+    tem2="南昌今天天气："+WD1+"\n南昌今天温度："+TQ1
+    chp = chp()
+    #print(chp)
+    send(t,tem1,tem2,chp)  #需要去send里修改收件人信息、模板信息     
             
+
