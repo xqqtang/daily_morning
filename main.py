@@ -90,8 +90,8 @@ if __name__ == '__main__':
     t = token(AppID,AppSecret)
     WD,TQ=tianqi("中山") ##地址记得修改到你需要的地方
     WD1,TQ1=tianqi("双峰")
-    tem1="\n中山今天天气："+WD+"\n中山今天温度："+TQ  ##文字描述也别忘了改哦
-    tem2="双峰今天天气："+WD1+"\n双峰今天温度："+TQ1
+    tem1="中山今天天气："+WD+"，温度："+TQ  ##,文字中可以加\n换行，文字描述也别忘了改哦
+    tem2="双峰今天天气："+WD1+",温度："+TQ1
     chp = chp()
     #print(chp)
     send(t,tem1,tem2,chp)  #需要去send里修改收件人信息、模板信息     
