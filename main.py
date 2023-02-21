@@ -72,13 +72,10 @@ def send(t,tem1,tem2,chp):   #带着token去发包
                 "color":"#000"
             },
             "keyword3":{
-                "value":"",
-                "color":"#000"
-            },
-            "keyword4":{
                 "value":chp,
                 "color":"#000"
             }
+
 }
 }
     res = requests.post(url=url,data=json.dumps(data))
