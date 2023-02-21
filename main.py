@@ -28,9 +28,9 @@ import requests,json
 def token(AppId,AppSecret):  #调用开发者的api 得到token
     url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}'.format(AppId,AppSecret)
     r=requests.get(url)
-    #print(r.text)
+    print(r.text)
     data = json.loads(r.text)
-    #print(data["access_token"])
+    print(data["access_token"])
     return data["access_token"]
 
 def tianqi(city):
