@@ -93,7 +93,7 @@ if __name__ == '__main__':
     tem1="\n石狮今天天气："+WD+"\n石狮今天温度："+TQ  ##文字描述也别忘了改哦
     tem2="南昌今天天气："+WD1+"\n南昌今天温度："+TQ1
     chp = chp()
-    #print(chp)
+    print(chp)
     send(t,tem1,tem2,chp)  #需要去send里修改收件人信息、模板信息     
             
 
